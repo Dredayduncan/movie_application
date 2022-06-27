@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/views/videoPage.dart';
 import 'package:movie_app/widgetGenerators/apiCalls.dart';
 
 class MovieDetails extends StatefulWidget {
@@ -23,6 +24,9 @@ class MovieDetails extends StatefulWidget {
 class _MovieDetailsState extends State<MovieDetails> {
   late String overview;
   late List movieCast;
+  late String duration;
+  late Map<String, dynamic>? videoDetails;
+
   Widget _currentPage = const Center(
     child: CircularProgressIndicator(),
   );
@@ -37,8 +41,11 @@ class _MovieDetailsState extends State<MovieDetails> {
 
   getAllDetails() async {
     APICalls api = APICalls();
-    overview = await api.getMovieOverview(movieID: widget.id);
+    Map<String, dynamic> movieDetails = await api.getMovie(movieID: widget.id);
+    overview = movieDetails['overview'];
+    duration = intToTimeLeft(movieDetails['runtime']);
     movieCast = await api.getMovieCast(movieID: widget.id);
+    videoDetails = await api.getTrailerDetails(movieID: widget.id);
 
     setState(() {
       _currentPage = _buildContent();
@@ -64,15 +71,15 @@ class _MovieDetailsState extends State<MovieDetails> {
             padding: const EdgeInsets.all(12.0),
             child: Text(
               overview,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 15.0,
                 color: Color(0xFF7A7A7A)
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
+          const Padding(
+            padding: EdgeInsets.all(12.0),
             child: Text(
               "Cast",
               style: TextStyle(
@@ -94,16 +101,31 @@ class _MovieDetailsState extends State<MovieDetails> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+          Center(
             child: Container(
-              width: 400,
+              width: 350,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF07C8D4)
+                  primary: videoDetails != null
+                    ? const Color(0xFF07C8D4)
+                    : const Color(0xFF40404C)
                 ),
-                onPressed: () {},
-                child: Text("Play Trailer"),
+                onPressed: videoDetails == null
+                  ? () {}
+                  : () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => VideoPlayer(
+                              name: videoDetails!['name']!,
+                              videoKey: videoDetails!['key']!,
+                          )
+                      )
+                  );
+                },
+                child: videoDetails != null
+                    ? const Text("Play Trailer")
+                  : const Text("Trailer Unavailable"),
               ),
             ),
           ),
@@ -205,7 +227,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                     Container(
                       width: 200,
                       child: Text(
-                        widget.releaseDate,
+                        duration,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w400,
@@ -213,7 +235,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10.0,),
+                    const SizedBox(height: 10.0,),
                     Padding(
                       padding: const EdgeInsets.only(right: 135.0),
                       child: Container(
@@ -252,5 +274,11 @@ class _MovieDetailsState extends State<MovieDetails> {
         )
       ],
     );
+  }
+
+  String intToTimeLeft(int value) {
+    var d = Duration(minutes:value);
+    List<String> parts = d.toString().split(':');
+    return '${parts[0].padLeft(2, '0')}h ${parts[1].padLeft(2, '0')}min';
   }
 }

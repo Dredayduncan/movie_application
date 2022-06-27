@@ -49,7 +49,7 @@ class APICalls {
   }
 
   Future<List> search({value}) async {
-    String result = value.replaceAll(RegExp(' '), '+');
+    String result = value.replaceAll(RegExp(' '), '%20');
     var url = Uri.parse("https://api.themoviedb.org/3/search/movie?api_key=8245a3d992a2b57cad7bee0fd868e9a7&query=$result");
     var response = await http.get(url);
 
@@ -71,11 +71,11 @@ class APICalls {
     return results;
   }
 
-  Future<String> getMovieOverview({movieID}) async {
+  Future<Map<String, dynamic>> getMovie({movieID}) async {
     var url = Uri.parse("https://api.themoviedb.org/3/movie/$movieID?api_key=8245a3d992a2b57cad7bee0fd868e9a7&language=en-US");
     var response = await http.get(url);
 
-    return jsonDecode(response.body)['overview'];
+    return jsonDecode(response.body);
   }
 
   Future<List> getMovieCast({movieID}) async {
@@ -96,6 +96,28 @@ class APICalls {
     }
     return results;
   }
+
+  Future<Map<String, dynamic>?> getTrailerDetails({movieID}) async{
+    var url = Uri.parse("https://api.themoviedb.org/3/movie/$movieID/videos?api_key=8245a3d992a2b57cad7bee0fd868e9a7&language=en-US");
+    var response = await http.get(url);
+
+    List res = jsonDecode(response.body)['results'];
+
+    if (res.isEmpty){
+      return null;
+    }
+
+    for (var i = 0; i < res.length; i++){
+
+      if (res[i]["type"] == "Trailer"){
+        return res[i];
+      }
+    }
+
+    return null;
+  }
+
+
 
 
 }
