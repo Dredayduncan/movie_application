@@ -1,16 +1,9 @@
-# movie_app
+# Movie Information Application
 
-A new Flutter project.
+An application that provides information on movies generated from the TMDB api.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Functional Requirements and features
+- Users can view all upcoming movies and their respective details  
+- Users can view all popular movies and their respective details 
+- Users can search for movies in the database 
+- Users can play the trailers for movies that include trailers in their details
